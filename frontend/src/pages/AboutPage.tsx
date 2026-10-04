@@ -1,10 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   ShieldCheck,
   Cpu,
   Lock,
-  FlaskConical,
   Sparkles,
 } from 'lucide-react';
 
@@ -40,7 +38,7 @@ export const AboutPage: React.FC = () => {
             Every season, grape farmers invest in comprehensive petiole and leaf tissue testing. However, interpreting multi-element lab sheets with disparate units (percentages and ppm) and complex ionic ratios often proves overwhelming without immediate expert guidance.
           </p>
           <p className="text-sm text-gray-700 leading-relaxed">
-            GrapeLeaf AI simplifies this by instantly classifying measured laboratory values against established <strong>October Pruning Reference Standards</strong>, presenting visual indicators, non-technical explanations, and downloadable reports designed for direct farmer-agronomist collaboration.
+            GrapeLeaf AI simplifies this by instantly classifying measured laboratory values against established <strong>Petiole Reference Standards</strong>, presenting visual indicators, non-technical explanations, and downloadable reports designed for direct farmer-agronomist collaboration.
           </p>
         </div>
 
@@ -139,17 +137,6 @@ export const AboutPage: React.FC = () => {
             <p>TypeScript Static Type Checking</p>
           </div>
         </div>
-      </div>
-
-      {/* ── CALL TO ACTION ── */}
-      <div className="text-center py-6">
-        <Link
-          to="/analyze"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#4F772D] hover:bg-[#3f6024] text-white font-bold text-base shadow-lg transition-all"
-        >
-          <FlaskConical size={18} />
-          <span>Analyze Your Grape Sample</span>
-        </Link>
       </div>
     </div>
   );

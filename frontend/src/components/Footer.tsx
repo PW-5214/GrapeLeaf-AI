@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
             </div>
             <p className="text-sm text-white/70 max-w-md leading-relaxed">
               Smart petiole and leaf nutrient analysis platform engineered specifically for viticulturists.
-              Translating lab findings into clear educational guidance based on October Pruning Reference Standards.
+              Translating lab findings into clear educational guidance based on Petiole Reference Standards.
             </p>
             <div className="inline-flex items-center gap-2 text-xs bg-[#54245F]/50 border border-white/10 px-3 py-1.5 rounded-full text-white/90">
               <Sparkles size={13} className="text-[#98D65F]" />
@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
               Standards
             </h4>
             <p className="text-xs text-white/70 leading-relaxed mb-3">
-              Configured for <strong>October Pruning Stage</strong> petiole analysis. Reference limits should be reviewed and validated periodically by local agronomic specialists.
+              Configured for standard petiole tissue analysis. Reference limits should be reviewed and validated periodically by local agronomic specialists.
             </p>
             <div className="text-xs text-[#98D65F] font-medium">
               Viticulture Decision Support v1.0
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
         <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-white/50 gap-2">
           <p>© {new Date().getFullYear()} GrapeLeaf AI. All rights reserved.</p>
           <p className="tracking-wide">
-            GrapeLeaf AI | October Pruning Reference Standards | Educational Decision Support
+            GrapeLeaf AI | Petiole Reference Standards | Educational Decision Support
           </p>
         </div>
       </div>

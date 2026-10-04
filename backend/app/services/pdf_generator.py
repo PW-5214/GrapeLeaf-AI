@@ -80,7 +80,7 @@ def _add_page_decorations(canvas, doc):
     # Footer
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(GRAY_UNK)
-    footer_text = "GrapeLeaf AI  |  October Pruning Reference Standards  |  Educational Decision Support"
+    footer_text = "GrapeLeaf AI  |  Petiole Reference Standards  |  Educational Decision Support"
     canvas.drawCentredString(page_w / 2, 10 * mm, footer_text)
     canvas.drawRightString(page_w - 15 * mm, 10 * mm, f"Page {doc.page} of 3")
     canvas.restoreState()
@@ -185,7 +185,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
             Paragraph("<b>Report Date:</b>", body_style),
             Paragraph(analyzed_at, body_style),
             Paragraph("<b>Standards:</b>", body_style),
-            Paragraph("October Pruning Reference", body_style),
+            Paragraph("Petiole Reference Standard", body_style),
         ],
     ]
     meta_table = Table(meta_data, colWidths=[26 * mm, 64 * mm, 24 * mm, 66 * mm])
@@ -211,7 +211,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
             textColor=ORANGE_HIGH,
         )
         story.append(Paragraph(
-            "Note: Reference configuration is based on October Pruning Standards. Results for non-October seasons should be verified by a local viticulturist.",
+            "Note: Reference configuration is based on standard petiole benchmarks. Results for non-standard sampling periods should be verified by a local viticulturist.",
             warning_style
         ))
 
@@ -277,7 +277,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
     story.append(Spacer(1, 4 * mm))
 
     # ── Standards Reference Table on Page 1 ──────────────────────────────────
-    story.append(Paragraph("Configured October Pruning Reference Standards", section_heading))
+    story.append(Paragraph("Configured Petiole Reference Standards", section_heading))
     story.append(Paragraph(
         "The following established values are applied for nutrient classification in this report. Reviewed and validated by viticulture specialists.",
         small_style
@@ -448,7 +448,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
         combined = opt_names + safe_names
         story.append(Paragraph('<font color="#4F772D"><b>[ OPTIMUM &amp; SAFE STATUS ]</b></font>', obs_title_style))
         story.append(Paragraph(
-            f"The following {len(combined)} nutrient(s) meet October Pruning reference standards: <b>{', '.join(combined)}</b>. "
+            f"The following {len(combined)} nutrient(s) meet petiole reference standards: <b>{', '.join(combined)}</b>. "
             "Continue balanced irrigation and maintenance fertilization.",
             obs_body_style
         ))
@@ -481,7 +481,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
     # Precautions & Limitations
     story.append(Paragraph("Precautions &amp; Biological Limitations", section_heading))
     precautions_html = (
-        "&bull; <b>Standards Scope:</b> Calibrated for grape petioles at October forward pruning. Not applicable to other phenological stages.<br/>"
+        "&bull; <b>Standards Scope:</b> Calibrated for grape petiole tissue analysis. Not applicable to other phenological stages.<br/>"
         "&bull; <b>Varietal Differences:</b> Table varieties (Thompson Seedless) and wine varieties have distinct nutrient demands.<br/>"
         "&bull; <b>Rootstock Influence:</b> Rootstocks like Dogridge or 110R alter potassium, magnesium, and chloride uptake significantly.<br/>"
         "&bull; <b>Lab Variation:</b> Differences in petiole washing, drying, and digestion techniques can introduce measurement variance."
@@ -493,7 +493,7 @@ def generate_pdf(analysis: AnalysisResponse) -> bytes:
     # Educational Disclaimer Box
     disclaimer_box_data = [[
         Paragraph(
-            "<b>Educational Decision Support Disclaimer:</b> This report provides educational decision support based strictly on entered values and configured October Pruning reference standards. It is not a substitute for qualified agricultural advice. Do not apply chemical fertilizers or amendments without professional verification. GrapeLeaf AI does not guarantee yield improvement, disease detection, or crop recovery.",
+            "<b>Educational Decision Support Disclaimer:</b> This report provides educational decision support based strictly on entered values and configured petiole reference standards. It is not a substitute for qualified agricultural advice. Do not apply chemical fertilizers or amendments without professional verification. GrapeLeaf AI does not guarantee yield improvement, disease detection, or crop recovery.",
             disclaimer_style
         )
     ]]

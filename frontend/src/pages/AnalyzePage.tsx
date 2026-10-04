@@ -44,7 +44,7 @@ const MODEL_DETAILS: Record<
     ring: 'ring-[#4F772D]',
     badge: 'bg-[#4F772D] text-white',
     description: 'Ensemble of 200 decision trees. Robust, interpretable, and industry-trusted.',
-    pros: ['High interpretability', 'Handles missing values gracefully', '99.78% CV accuracy'],
+    pros: ['High interpretability', 'Handles missing values gracefully', 'Robust ensemble decision trees'],
   },
   xgb: {
     label: 'XGBoost',
@@ -54,8 +54,8 @@ const MODEL_DETAILS: Record<
     bg: 'bg-[#F6F1F8]',
     ring: 'ring-[#54245F]',
     badge: 'bg-[#54245F] text-white',
-    description: 'Gradient-boosted trees (300 estimators). State-of-the-art accuracy on tabular data.',
-    pros: ['Highest accuracy (99.94% CV)', 'Captures complex interactions', 'Perfect test score 100%'],
+    description: 'Gradient-boosted decision trees (300 estimators) for tabular petiole data.',
+    pros: ['Gradient boosting architecture', 'Captures complex nutrient interactions', 'Fine-grained non-linear splits'],
   },
 };
 
@@ -155,11 +155,6 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
     }
   };
 
-  const getModelAccuracy = (key: ModelType) => {
-    const found = availableModels.find((m) => m.key === key);
-    return found ? found.cv_accuracy : (key === 'xgb' ? '99.9%' : '99.8%');
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header Banner */}
@@ -193,10 +188,10 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
         <div className="rounded-2xl bg-amber-50 border border-amber-300 p-5 flex items-start gap-4 text-amber-900 shadow-xs animate-in fade-in duration-300">
           <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h3 className="text-sm font-bold">Season Selection Warning</h3>
+            <h3 className="text-sm font-bold">Season Selection Advisory</h3>
             <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed">
-              The current reference configuration is based on <strong>October Pruning Standards</strong> and may not be
-              suitable for the selected season ({season}). Consult an agricultural professional.
+              The current reference configuration is calibrated for <strong>Standard Petiole Benchmarks</strong> and may not be
+              suitable for non-standard sampling periods ({season}). Consult an agricultural professional.
             </p>
           </div>
         </div>
@@ -256,15 +251,15 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
               />
             </div>
             <div>
-              <label htmlFor="season" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Pruning Season</label>
+              <label htmlFor="season" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Sampling Season</label>
               <select
                 id="season"
                 value={season}
                 onChange={(e) => setSeason(e.target.value as any)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#7B3F98] focus:ring-2 focus:ring-[#7B3F98]/20 text-sm font-semibold text-[#54245F] transition-all bg-white"
               >
-                <option value="October">October (Forward Pruning) — Recommended</option>
-                <option value="April">April (Foundation Pruning)</option>
+                <option value="October">Standard Season — Recommended</option>
+                <option value="April">Secondary Season</option>
                 <option value="Other">Other / Off-Season</option>
               </select>
             </div>
@@ -280,12 +275,12 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                 2. Choose ML Classification Engine
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                Both models are trained on 5,000 petiole records using October Pruning Reference Standards.
+                Both models are trained on 5,000 petiole records using verified reference standards.
               </p>
             </div>
             <span className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-[#4F772D] bg-[#EAF3E2] px-3 py-1.5 rounded-full whitespace-nowrap">
               <CheckCircle2 size={12} />
-              Models Ready
+              {availableModels.length > 0 ? `${availableModels.length} Models Ready` : 'Models Ready'}
             </span>
           </div>
 
@@ -293,7 +288,6 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
             {(['rf', 'xgb'] as ModelType[]).map((key) => {
               const m = MODEL_DETAILS[key];
               const isSelected = modelType === key;
-              const cvAcc = getModelAccuracy(key);
               return (
                 <button
                   key={key}
@@ -321,7 +315,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                     <div>
                       <p className={`text-sm font-extrabold ${isSelected ? m.color : 'text-gray-800'}`}>{m.label}</p>
                       <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isSelected ? m.badge : 'bg-gray-200 text-gray-600'}`}>
-                        CV: {cvAcc}
+                        {key === 'rf' ? '200 Trees' : '300 Estimators'}
                       </span>
                     </div>
                   </div>

@@ -119,7 +119,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
             </Link>
             <span className="text-gray-300">•</span>
             <span className="text-xs font-semibold uppercase tracking-wider text-[#4F772D] bg-[#EAF3E2] px-2.5 py-0.5 rounded-full">
-              October Pruning Benchmark
+              Petiole Reference Benchmark
             </span>
           </div>
 
@@ -180,7 +180,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
         <div className="rounded-2xl bg-amber-50 border border-amber-300 p-5 flex items-start gap-3 text-amber-900 shadow-xs">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-xs sm:text-sm leading-relaxed">
-            <strong>Non-Standard Season Alert:</strong> This analysis was performed with season set to <strong>{analysis.season}</strong>, but reference thresholds are calibrated for <strong>October Pruning</strong>. Please verify interpretations with a local viticulturist.
+            <strong>Non-Standard Season Alert:</strong> This analysis was performed with season set to <strong>{analysis.season}</strong>, but reference thresholds are calibrated for standard petiole sampling. Please verify interpretations with a local viticulturist.
           </p>
         </div>
       )}
@@ -213,20 +213,8 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
               </h2>
 
               <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
-                Trained on 5,000 October pruning petiole laboratory records to synthesize multi-element interactions into an overall vine nutritional health category.
+                Trained on 5,000 petiole laboratory records to synthesize multi-element interactions into an overall vine nutritional health category.
               </p>
-
-              {/* Accuracy pills */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-white/80 border border-white/15">
-                  CV Accuracy: <strong>{analysis.ml_prediction.validation_accuracy}</strong>
-                </span>
-                {(analysis.ml_prediction as any).test_accuracy && (
-                  <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-white/80 border border-white/15">
-                    Test Accuracy: <strong>{(analysis.ml_prediction as any).test_accuracy}</strong>
-                  </span>
-                )}
-              </div>
             </div>
 
             {/* Confidence metric */}
@@ -353,7 +341,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
           <div className="mt-4 p-4 rounded-2xl bg-[#EAF3E2] border border-[#4F772D]/20 flex items-center gap-3 text-[#385620]">
             <CheckCircle2 size={22} className="text-[#4F772D] shrink-0" />
             <p className="text-xs sm:text-sm font-medium">
-              All measured nutrients fall within the configured October Pruning reference ranges and safe thresholds.
+              All measured nutrients fall within the configured reference ranges and safe thresholds.
             </p>
           </div>
         )}
@@ -368,7 +356,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
               Comprehensive Nutrient Breakdown
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Exact measured laboratory values compared to October Pruning Reference Standards.
+              Exact measured laboratory values compared to Petiole Reference Standards.
             </p>
           </div>
 

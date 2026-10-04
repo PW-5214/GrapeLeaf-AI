@@ -26,10 +26,10 @@ export const StandardsPage: React.FC = () => {
             <span>Benchmark Library</span>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-            October Pruning Reference Standards
+            Petiole Reference Standards
           </h1>
           <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-            Standard petiole nutrient concentration guidelines used for nutritional diagnosis during October forward pruning in grape vineyards.
+            Standard petiole nutrient concentration guidelines used for nutritional diagnosis in grape vineyards.
           </p>
         </div>
       </div>
@@ -42,7 +42,7 @@ export const StandardsPage: React.FC = () => {
             Agricultural Expert Validation Note
           </h3>
           <p className="text-[#29232D]/85">
-            These reference standards provide a baseline framework for October forward pruning evaluation. <strong>Reference standards should be reviewed and validated periodically by qualified agricultural experts</strong> and extension specialists to match specific cultivar genetics, rootstock graft combinations, and localized micro-climates.
+            These reference standards provide a baseline framework for petiole evaluation. <strong>Reference standards should be reviewed and validated periodically by qualified agricultural experts</strong> and extension specialists to match specific cultivar genetics, rootstock graft combinations, and localized micro-climates.
           </p>
         </div>
       </div>
@@ -176,7 +176,7 @@ export const StandardsPage: React.FC = () => {
           <div className="p-4 rounded-2xl bg-[#FFFDF8] border border-gray-200 space-y-2">
             <h3 className="text-sm font-bold text-[#54245F]">🌱 Growth Stage</h3>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Nutrient levels fluctuate sharply from full bloom, fruit set, veraison, to post-harvest. These standards strictly calibrate the October forward pruning sampling stage.
+              Nutrient levels fluctuate across growth cycles from bloom to veraison. These standards strictly calibrate petiole tissue diagnostic sampling.
             </p>
           </div>
 

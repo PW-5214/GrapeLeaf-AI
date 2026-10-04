@@ -34,7 +34,7 @@ export const HomePage: React.FC = () => {
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold tracking-wide uppercase text-[#98D65F]">
                 <Leaf size={14} />
-                <span>October Pruning Decision Support for Viticulture</span>
+                <span>Petiole Analysis Decision Support for Viticulture</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
@@ -43,7 +43,7 @@ export const HomePage: React.FC = () => {
               </h1>
 
               <p className="text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed">
-                Enter your petiole/leaf analysis values to understand nutrient status and receive clear educational guidance based on configured October Pruning reference standards.
+                Enter your petiole/leaf analysis values to understand nutrient status and receive clear educational guidance based on configured petiole reference standards.
               </p>
 
               <div className="flex flex-wrap gap-4 pt-2">
@@ -98,7 +98,7 @@ export const HomePage: React.FC = () => {
                     Balanced Nutrients, Resilient Vines
                   </h3>
                   <p className="text-xs text-white/80 mt-1">
-                    Calibrated specifically for petiole sampling at October forward pruning.
+                    Calibrated specifically for grape petiole laboratory sampling.
                   </p>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export const HomePage: React.FC = () => {
             {
               step: '02',
               title: 'Standard Alignment',
-              desc: 'Values are benchmarked against official October Pruning Reference Standards with transparent boundary rules.',
+              desc: 'Values are benchmarked against official Petiole Reference Standards with transparent boundary rules.',
               icon: BookOpen,
             },
             {
@@ -194,10 +194,10 @@ export const HomePage: React.FC = () => {
                 Agronomic Context
               </span>
               <h3 className="text-2xl font-extrabold text-[#54245F]">
-                Why Petiole Analysis at October Forward Pruning?
+                Why Grape Petiole Analysis?
               </h3>
               <p className="text-sm text-[#29232D]/85 leading-relaxed">
-                The leaf petiole (leaf stalk) serves as the primary conduit between the vine’s vascular system and photosynthetic tissue. During the critical October pruning window in major grape regions (such as Maharashtra, India), petiole nutrient concentrations provide the most reliable snapshot of vine reserve status before fruit bud differentiation and cluster emergence.
+                The leaf petiole (leaf stalk) serves as the primary conduit between the vine’s vascular system and photosynthetic tissue. During key diagnostic growth windows in major grape regions, petiole nutrient concentrations provide the most reliable snapshot of vine reserve status before fruit bud differentiation and cluster emergence.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div className="flex items-start gap-2">
@@ -240,7 +240,7 @@ export const HomePage: React.FC = () => {
             </div>
             <h3 className="text-lg font-bold text-[#29232D]">Transparent Classification</h3>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Every result is strictly computed with transparent rule-based logic against published October Pruning standards. No hidden black boxes or artificial guessing.
+              Every result is strictly computed with transparent rule-based logic against published petiole reference standards. No hidden black boxes or artificial guessing.
             </p>
           </div>
 
@@ -283,7 +283,7 @@ export const HomePage: React.FC = () => {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-600 font-bold">•</span>
-              <span><strong>Growth Stage:</strong> Current standards apply specifically to the October forward pruning sampling stage.</span>
+              <span><strong>Growth Stage:</strong> Current standards apply specifically to grape petiole diagnostic sampling.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-600 font-bold">•</span>

@@ -1,6 +1,6 @@
 # GrapeLeaf AI – Smart Petiole/Leaf Nutrient Analysis and Farmer Advisory System
 
-GrapeLeaf AI is a full-stack, viticulture-focused decision support application built to analyze grape petiole and leaf nutrient laboratory values against official **October Pruning Reference Standards**.
+GrapeLeaf AI is a full-stack, viticulture-focused decision support application built to analyze grape petiole and leaf nutrient laboratory values against official **Petiole Reference Standards**.
 
 ---
 
@@ -8,7 +8,8 @@ GrapeLeaf AI is a full-stack, viticulture-focused decision support application b
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React icons, Responsive navigation, Accessible status badges (color + label + icon).
 - **Backend**: Python 3.11, FastAPI, Pydantic v2 schemas, ReportLab PDF generator, Pytest (41 tests).
-- **Classification Engine**: Transparent rule-based classification:
+- **Dual ML Engine**: Supports both **Random Forest** (200 trees) and **XGBoost** (300 estimators) classification alongside rule-based reference limits.
+- **Classification Engine**: Transparent reference classification:
   - Nutrients with min–max: **Low** (< min), **Optimum** (min ≤ val ≤ max, inclusive boundaries), **High** (> max).
   - Sodium (Na) & Chloride (Cl): **Safe** (< 0.5%), **Above Safe Limit** (≥ 0.5%).
   - Missing/invalid values: **Data Unavailable** (never converted to zero or Low).
