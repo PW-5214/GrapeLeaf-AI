@@ -28,10 +28,15 @@ class NutrientValues(BaseModel):
 
 
 class SampleInput(BaseModel):
+    model_config = {"protected_namespaces": ()}
     sample_id: Optional[str] = Field(None, max_length=100)
     crop: str = Field(default="Grape", max_length=100)
     location: Optional[str] = Field(None, max_length=200)
     season: Literal["October", "April", "Other"] = Field(default="October")
+    model_type: Literal["rf", "xgb"] = Field(
+        default="rf",
+        description="ML model to use: 'rf' = Random Forest, 'xgb' = XGBoost",
+    )
     nutrients: NutrientValues
 
 
@@ -61,6 +66,17 @@ class AnalysisSummary(BaseModel):
     attention_required: int
 
 
+class MLPredictionResult(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    predicted_class: str
+    confidence_score: float
+    class_probabilities: Dict[str, float]
+    model_key: str
+    model_name: str
+    validation_accuracy: str
+    test_accuracy: str
+
+
 class AnalysisResponse(BaseModel):
     sample_id: Optional[str]
     crop: str
@@ -70,6 +86,7 @@ class AnalysisResponse(BaseModel):
     analyzed_at: str
     results: List[NutrientResult]
     summary: AnalysisSummary
+    ml_prediction: Optional[MLPredictionResult] = None
 
 
 class StandardInfo(BaseModel):
@@ -83,3 +100,15 @@ class StandardInfo(BaseModel):
 class StandardsResponse(BaseModel):
     reference_period: str = "October Pruning"
     nutrients: List[StandardInfo]
+
+
+class ModelInfo(BaseModel):
+    key: str
+    display_name: str
+    cv_accuracy: str
+    test_accuracy: str
+    available: bool
+
+
+class ModelsListResponse(BaseModel):
+    models: List[ModelInfo]

@@ -1,22 +1,28 @@
-"""FastAPI routes for nutrient analysis."""
+"""FastAPI routes for nutrient analysis — supports model_type selection."""
 
 from __future__ import annotations
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import SampleInput, AnalysisResponse, AnalysisSummary
+from app.models.schemas import SampleInput, AnalysisResponse, AnalysisSummary, ModelsListResponse, ModelInfo
 from app.services.classifier import classify_sample
+from app.services.ml_service import predict_vine_status, list_available_models
 
 router = APIRouter(prefix="/api", tags=["analyze"])
+
+
+@router.get("/models", response_model=ModelsListResponse)
+async def get_available_models() -> ModelsListResponse:
+    """Return metadata for all available trained ML models."""
+    raw = list_available_models()
+    return ModelsListResponse(models=[ModelInfo(**m) for m in raw])
 
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_sample(body: SampleInput) -> AnalysisResponse:
     """
     Classify all submitted nutrient values against October Pruning Reference Standards.
-    Missing values are classified as Data Unavailable.
-    Dataset CSV is never accessed here.
+    Runs ML Vine Status prediction using the user-selected model (rf or xgb).
     """
-    # Build nutrients dict from input (None for missing fields)
     nutrient_dict = {
         "N":      body.nutrients.N,
         "NO3":    body.nutrients.NO3,
@@ -36,16 +42,16 @@ async def analyze_sample(body: SampleInput) -> AnalysisResponse:
         "Cl":     body.nutrients.Cl,
     }
 
-    results = classify_sample(nutrient_dict)
+    results    = classify_sample(nutrient_dict)
+    ml_result  = predict_vine_status(nutrient_dict, model_key=body.model_type)
 
-    # Build summary
-    low = sum(1 for r in results if r.status == "Low")
-    optimum = sum(1 for r in results if r.status == "Optimum")
-    high = sum(1 for r in results if r.status == "High")
-    safe = sum(1 for r in results if r.status == "Safe")
+    low        = sum(1 for r in results if r.status == "Low")
+    optimum    = sum(1 for r in results if r.status == "Optimum")
+    high       = sum(1 for r in results if r.status == "High")
+    safe       = sum(1 for r in results if r.status == "Safe")
     above_safe = sum(1 for r in results if r.status == "Above Safe Limit")
-    unavail = sum(1 for r in results if r.status == "Data Unavailable")
-    attention = low + high + above_safe
+    unavail    = sum(1 for r in results if r.status == "Data Unavailable")
+    attention  = low + high + above_safe
 
     summary = AnalysisSummary(
         total_analyzed=len(results) - unavail,
@@ -67,4 +73,5 @@ async def analyze_sample(body: SampleInput) -> AnalysisResponse:
         analyzed_at=datetime.now(timezone.utc).isoformat(),
         results=results,
         summary=summary,
+        ml_prediction=ml_result,
     )

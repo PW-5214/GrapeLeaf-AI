@@ -1,21 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { OCTOBER_STANDARDS_CONFIG } from '../config/standards';
 import { NutrientInput } from '../components/NutrientInput';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import type { AnalysisResponse } from '../types';
+import type { AnalysisResponse, ModelType, ModelInfo } from '../types';
 import {
   FlaskConical,
   RotateCcw,
   AlertTriangle,
   ChevronRight,
   Sparkles,
+  Cpu,
+  Trees,
+  CheckCircle2,
+  Info,
 } from 'lucide-react';
 
 interface AnalyzePageProps {
   onAnalysisComplete: (data: AnalysisResponse, formData: any) => void;
 }
+
+const MODEL_DETAILS: Record<
+  ModelType,
+  {
+    label: string;
+    shortLabel: string;
+    icon: React.ReactNode;
+    color: string;
+    bg: string;
+    ring: string;
+    badge: string;
+    description: string;
+    pros: string[];
+  }
+> = {
+  rf: {
+    label: 'Random Forest',
+    shortLabel: 'RF',
+    icon: <Trees size={20} />,
+    color: 'text-[#4F772D]',
+    bg: 'bg-[#EAF3E2]',
+    ring: 'ring-[#4F772D]',
+    badge: 'bg-[#4F772D] text-white',
+    description: 'Ensemble of 200 decision trees. Robust, interpretable, and industry-trusted.',
+    pros: ['High interpretability', 'Handles missing values gracefully', '99.78% CV accuracy'],
+  },
+  xgb: {
+    label: 'XGBoost',
+    shortLabel: 'XGB',
+    icon: <Cpu size={20} />,
+    color: 'text-[#54245F]',
+    bg: 'bg-[#F6F1F8]',
+    ring: 'ring-[#54245F]',
+    badge: 'bg-[#54245F] text-white',
+    description: 'Gradient-boosted trees (300 estimators). State-of-the-art accuracy on tabular data.',
+    pros: ['Highest accuracy (99.94% CV)', 'Captures complex interactions', 'Perfect test score 100%'],
+  },
+};
 
 export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) => {
   const navigate = useNavigate();
@@ -25,18 +67,25 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
   const [crop, setCrop] = useState('Grape');
   const [location, setLocation] = useState('');
   const [season, setSeason] = useState<'October' | 'April' | 'Other'>('October');
+  const [modelType, setModelType] = useState<ModelType>('xgb');
+  const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
 
   // Nutrient values state (string format for input typing)
   const [nutrients, setNutrients] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
-    OCTOBER_STANDARDS_CONFIG.forEach((s) => {
-      initial[s.key] = '';
-    });
+    OCTOBER_STANDARDS_CONFIG.forEach((s) => { initial[s.key] = ''; });
     return initial;
   });
 
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
+
+  // Fetch available models on mount
+  useEffect(() => {
+    axios.get<{ models: ModelInfo[] }>('/api/models')
+      .then((r) => setAvailableModels(r.data.models))
+      .catch(() => {}); // silent fail – model selector still works via hardcoded defaults
+  }, []);
 
   const handleNutrientChange = (key: string, value: string) => {
     setNutrients((prev) => ({ ...prev, [key]: value }));
@@ -45,9 +94,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
 
   const handleReset = () => {
     const cleared: Record<string, string> = {};
-    OCTOBER_STANDARDS_CONFIG.forEach((s) => {
-      cleared[s.key] = '';
-    });
+    OCTOBER_STANDARDS_CONFIG.forEach((s) => { cleared[s.key] = ''; });
     setNutrients(cleared);
     setSampleId('');
     setLocation('');
@@ -60,22 +107,9 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
     setLocation('Nashik Vineyards - Plot 4B');
     setSeason('October');
     setNutrients({
-      N: '1.85',
-      NO3: '920',
-      NH4_N: '640',
-      P: '0.52',
-      K: '1.65',
-      Ca: '0.88',
-      Mg: '0.62',
-      S: '0.19',
-      Fe: '64',
-      Mn: '75',
-      Zn: '58',
-      Cu: '7.8',
-      Boron: '48',
-      Mo: '0.38',
-      Na: '0.32',
-      Cl: '0.28',
+      N: '1.85', NO3: '920', NH4_N: '640', P: '0.52', K: '1.65',
+      Ca: '0.88', Mg: '0.62', S: '0.19', Fe: '64', Mn: '75',
+      Zn: '58', Cu: '7.8', Boron: '48', Mo: '0.38', Na: '0.32', Cl: '0.28',
     });
     setGeneralError(null);
   };
@@ -84,47 +118,31 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
     e.preventDefault();
     setGeneralError(null);
 
-    // Empty-input validation: Ensure at least one nutrient value is provided
-    const enteredEntries = Object.entries(nutrients).filter(
-      ([_, val]) => val.trim() !== ''
-    );
-
+    const enteredEntries = Object.entries(nutrients).filter(([_, val]) => val.trim() !== '');
     if (enteredEntries.length === 0) {
-      setGeneralError(
-        'Please enter at least one nutrient value to run the analysis.'
-      );
+      setGeneralError('Please enter at least one nutrient value to run the analysis.');
       return;
     }
 
-    // Convert strings to float or null (preserving missing values, never converting to 0!)
     const parsedNutrients: Record<string, number | null> = {};
     for (const s of OCTOBER_STANDARDS_CONFIG) {
       const raw = nutrients[s.key]?.trim();
-      if (raw && !isNaN(Number(raw))) {
-        parsedNutrients[s.key] = parseFloat(raw);
-      } else {
-        parsedNutrients[s.key] = null;
-      }
+      parsedNutrients[s.key] = raw && !isNaN(Number(raw)) ? parseFloat(raw) : null;
     }
 
     const payload = {
       sample_id: sampleId.trim() || undefined,
       crop: crop.trim() || 'Grape',
       location: location.trim() || undefined,
-      season: season,
+      season,
+      model_type: modelType,
       nutrients: parsedNutrients,
     };
 
     setLoading(true);
     try {
       const response = await axios.post<AnalysisResponse>('/api/analyze', payload);
-      onAnalysisComplete(response.data, {
-        sample_id: sampleId,
-        crop,
-        location,
-        season,
-        nutrients,
-      });
+      onAnalysisComplete(response.data, { sample_id: sampleId, crop, location, season, model_type: modelType, nutrients });
       navigate('/report');
     } catch (err: any) {
       console.error('Analysis error:', err);
@@ -135,6 +153,11 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
     } finally {
       setLoading(false);
     }
+  };
+
+  const getModelAccuracy = (key: ModelType) => {
+    const found = availableModels.find((m) => m.key === key);
+    return found ? found.cv_accuracy : (key === 'xgb' ? '99.9%' : '99.8%');
   };
 
   return (
@@ -150,7 +173,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
             Analyze Your Grape Leaf Sample
           </h1>
           <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-            Enter the measured chemical values from your petiole laboratory report. Fields left empty will be safely treated as unavailable and excluded from low/high classification.
+            Enter your petiole lab values, choose your preferred ML classification engine, and get an instant advisory report.
           </p>
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -172,7 +195,8 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
           <div className="space-y-1">
             <h3 className="text-sm font-bold">Season Selection Warning</h3>
             <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed">
-              The current reference configuration is based on <strong>October Pruning Standards</strong> and may not be suitable for the selected season ({season}). Consult an agricultural professional for appropriate standards for your current pruning cycle.
+              The current reference configuration is based on <strong>October Pruning Standards</strong> and may not be
+              suitable for the selected season ({season}). Consult an agricultural professional.
             </p>
           </div>
         </div>
@@ -186,26 +210,17 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
         </div>
       )}
 
-      {/* Analysis Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Section 1: Sample Metadata */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-6">
           <div className="border-b border-gray-100 pb-4">
-            <h2 className="text-lg font-bold text-[#54245F] flex items-center gap-2">
-              <span>1. Sample Identification & Field Details</span>
-            </h2>
-            <p className="text-xs text-gray-500 mt-1">
-              Metadata printed on your advisory report for record keeping.
-            </p>
+            <h2 className="text-lg font-bold text-[#54245F]">1. Sample Identification &amp; Field Details</h2>
+            <p className="text-xs text-gray-500 mt-1">Metadata printed on your advisory report for record keeping.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Sample ID */}
             <div>
-              <label
-                htmlFor="sample_id"
-                className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5"
-              >
+              <label htmlFor="sample_id" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                 Sample ID <span className="text-gray-400 font-normal">(Optional)</span>
               </label>
               <input
@@ -217,15 +232,8 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                 className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#7B3F98] focus:ring-2 focus:ring-[#7B3F98]/20 text-sm font-medium transition-all"
               />
             </div>
-
-            {/* Crop */}
             <div>
-              <label
-                htmlFor="crop"
-                className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5"
-              >
-                Crop
-              </label>
+              <label htmlFor="crop" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Crop</label>
               <input
                 id="crop"
                 type="text"
@@ -234,13 +242,8 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                 className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#7B3F98] focus:ring-2 focus:ring-[#7B3F98]/20 text-sm font-medium transition-all bg-gray-50"
               />
             </div>
-
-            {/* Location / Division */}
             <div>
-              <label
-                htmlFor="location"
-                className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5"
-              >
+              <label htmlFor="location" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                 Division / Location <span className="text-gray-400 font-normal">(Optional)</span>
               </label>
               <input
@@ -252,15 +255,8 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                 className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#7B3F98] focus:ring-2 focus:ring-[#7B3F98]/20 text-sm font-medium transition-all"
               />
             </div>
-
-            {/* Pruning Season */}
             <div>
-              <label
-                htmlFor="season"
-                className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5"
-              >
-                Pruning Season
-              </label>
+              <label htmlFor="season" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Pruning Season</label>
               <select
                 id="season"
                 value={season}
@@ -275,13 +271,89 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
           </div>
         </div>
 
-        {/* Section 2: Nutrient Parameters Grid */}
+        {/* Section 2: ML Model Selector */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-5">
+          <div className="border-b border-gray-100 pb-4 flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-[#54245F] flex items-center gap-2">
+                <Cpu size={18} className="text-[#54245F]" />
+                2. Choose ML Classification Engine
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Both models are trained on 5,000 petiole records using October Pruning Reference Standards.
+              </p>
+            </div>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-[#4F772D] bg-[#EAF3E2] px-3 py-1.5 rounded-full whitespace-nowrap">
+              <CheckCircle2 size={12} />
+              Models Ready
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(['rf', 'xgb'] as ModelType[]).map((key) => {
+              const m = MODEL_DETAILS[key];
+              const isSelected = modelType === key;
+              const cvAcc = getModelAccuracy(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  id={`model-selector-${key}`}
+                  onClick={() => setModelType(key)}
+                  className={`relative text-left rounded-2xl p-5 border-2 transition-all duration-200 ${
+                    isSelected
+                      ? `border-current ${m.ring} ring-2 ring-offset-2 ${m.bg} shadow-md`
+                      : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
+                  }`}
+                >
+                  {/* Selected check */}
+                  {isSelected && (
+                    <span className={`absolute top-3 right-3 w-6 h-6 rounded-full ${m.badge} flex items-center justify-center`}>
+                      <CheckCircle2 size={14} />
+                    </span>
+                  )}
+
+                  {/* Header */}
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className={`w-10 h-10 rounded-xl ${isSelected ? m.bg : 'bg-white'} border border-gray-200 flex items-center justify-center ${m.color} shadow-xs`}>
+                      {m.icon}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-extrabold ${isSelected ? m.color : 'text-gray-800'}`}>{m.label}</p>
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isSelected ? m.badge : 'bg-gray-200 text-gray-600'}`}>
+                        CV: {cvAcc}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs text-gray-600 leading-relaxed mb-3">{m.description}</p>
+
+                  {/* Pros */}
+                  <ul className="space-y-1">
+                    {m.pros.map((pro) => (
+                      <li key={pro} className={`text-[11px] font-medium flex items-center gap-1.5 ${isSelected ? m.color : 'text-gray-500'}`}>
+                        <CheckCircle2 size={11} className="shrink-0" />
+                        {pro}
+                      </li>
+                    ))}
+                  </ul>
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="text-[11px] text-gray-400 flex items-center gap-1.5">
+            <Info size={12} />
+            You can switch models and re-run the same sample to compare predictions.
+          </p>
+        </div>
+
+        {/* Section 3: Nutrient Parameters Grid */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-6">
           <div className="border-b border-gray-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-bold text-[#54245F] flex items-center gap-2">
-                <span>2. Enter Nutrient Values</span>
-              </h2>
+              <h2 className="text-lg font-bold text-[#54245F]">3. Enter Nutrient Values</h2>
               <p className="text-xs text-gray-500 mt-1">
                 Enter measured laboratory numbers. Values are validated numerically. Leave unknown fields blank.
               </p>
@@ -296,7 +368,6 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
             </div>
           </div>
 
-          {/* Grid of 16 nutrients */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {OCTOBER_STANDARDS_CONFIG.map((std) => (
               <NutrientInput
@@ -309,7 +380,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
           </div>
         </div>
 
-        {/* Section 3: Action Buttons */}
+        {/* Section 4: Action Buttons */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-2">
           <button
             type="button"
@@ -320,6 +391,12 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
             <RotateCcw size={16} />
             <span>Reset All Fields</span>
           </button>
+
+          {/* Active model pill */}
+          <div className={`hidden sm:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${MODEL_DETAILS[modelType].bg} ${MODEL_DETAILS[modelType].color}`}>
+            {MODEL_DETAILS[modelType].icon}
+            Using: {MODEL_DETAILS[modelType].label}
+          </div>
 
           <button
             type="submit"
@@ -342,7 +419,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
         </div>
       </form>
 
-      {loading && <LoadingSpinner message="Evaluating against October Pruning Standards..." />}
+      {loading && <LoadingSpinner message={`Running ${MODEL_DETAILS[modelType].label} classification...`} />}
     </div>
   );
 };

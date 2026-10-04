@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import Response
 from app.models.schemas import SampleInput, AnalysisResponse, AnalysisSummary
 from app.services.classifier import classify_sample
+from app.services.ml_service import predict_vine_status
 from app.services.pdf_generator import generate_pdf
 from datetime import datetime, timezone
 
@@ -37,6 +38,8 @@ async def download_pdf(body: SampleInput) -> Response:
     }
 
     results = classify_sample(nutrient_dict)
+    ml_result = predict_vine_status(nutrient_dict)
+
     low = sum(1 for r in results if r.status == "Low")
     optimum = sum(1 for r in results if r.status == "Optimum")
     high = sum(1 for r in results if r.status == "High")
@@ -62,6 +65,7 @@ async def download_pdf(body: SampleInput) -> Response:
             data_unavailable=unavail,
             attention_required=low + high + above_safe,
         ),
+        ml_prediction=ml_result,
     )
 
     pdf_bytes = generate_pdf(analysis)

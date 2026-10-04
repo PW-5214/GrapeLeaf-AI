@@ -11,25 +11,21 @@ import type { AnalysisResponse } from './types';
 
 export const App: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(() => {
-    const saved = sessionStorage.getItem('grapeleaf_analysis');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return null;
-      }
+    try {
+      const saved = typeof window !== 'undefined' ? sessionStorage.getItem('grapeleaf_analysis') : null;
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // sessionStorage blocked or unavailable
     }
     return null;
   });
 
   const [formData, setFormData] = useState<any>(() => {
-    const saved = sessionStorage.getItem('grapeleaf_form_data');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return null;
-      }
+    try {
+      const saved = typeof window !== 'undefined' ? sessionStorage.getItem('grapeleaf_form_data') : null;
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // sessionStorage blocked or unavailable
     }
     return null;
   });
@@ -37,8 +33,12 @@ export const App: React.FC = () => {
   const handleAnalysisComplete = (data: AnalysisResponse, form: any) => {
     setAnalysis(data);
     setFormData(form);
-    sessionStorage.setItem('grapeleaf_analysis', JSON.stringify(data));
-    sessionStorage.setItem('grapeleaf_form_data', JSON.stringify(form));
+    try {
+      sessionStorage.setItem('grapeleaf_analysis', JSON.stringify(data));
+      sessionStorage.setItem('grapeleaf_form_data', JSON.stringify(form));
+    } catch {
+      // ignore storage quota/security errors
+    }
   };
 
   return (

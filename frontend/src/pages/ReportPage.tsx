@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Clock,
   FlaskConical,
+  Cpu,
 } from 'lucide-react';
 
 interface ReportPageProps {
@@ -181,6 +182,103 @@ export const ReportPage: React.FC<ReportPageProps> = ({ analysis }) => {
           <p className="text-xs sm:text-sm leading-relaxed">
             <strong>Non-Standard Season Alert:</strong> This analysis was performed with season set to <strong>{analysis.season}</strong>, but reference thresholds are calibrated for <strong>October Pruning</strong>. Please verify interpretations with a local viticulturist.
           </p>
+        </div>
+      )}
+
+      {/* ── MACHINE LEARNING OVERALL VINE CLASSIFICATION CARD ── */}
+      {analysis.ml_prediction && (
+        <div className="bg-gradient-to-r from-[#54245F] via-[#6a2b79] to-[#54245F] rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-purple-300/20">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
+                  <Cpu className="w-4 h-4 text-[#98D65F]" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#98D65F]">
+                  ML Overall Classification Engine
+                </span>
+                {/* Model-used badge */}
+                <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  (analysis.ml_prediction as any).model_key === 'xgb'
+                    ? 'bg-[#98D65F]/20 text-[#98D65F] border-[#98D65F]/40'
+                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                }`}>
+                  <Cpu size={10} />
+                  {analysis.ml_prediction.model_name}
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
+                <span>{analysis.ml_prediction.predicted_class}</span>
+              </h2>
+
+              <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
+                Trained on 5,000 October pruning petiole laboratory records to synthesize multi-element interactions into an overall vine nutritional health category.
+              </p>
+
+              {/* Accuracy pills */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-white/80 border border-white/15">
+                  CV Accuracy: <strong>{analysis.ml_prediction.validation_accuracy}</strong>
+                </span>
+                {(analysis.ml_prediction as any).test_accuracy && (
+                  <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded-full text-white/80 border border-white/15">
+                    Test Accuracy: <strong>{(analysis.ml_prediction as any).test_accuracy}</strong>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Confidence metric */}
+            <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border border-white/15 text-center min-w-[180px]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/70 block mb-1">
+                Model Confidence
+              </span>
+              <div className="text-3xl font-black text-[#98D65F]">
+                {(analysis.ml_prediction.confidence_score * 100).toFixed(1)}%
+              </div>
+              <span className="text-[11px] text-white/60 block mt-1">
+                {analysis.ml_prediction.model_name}
+              </span>
+            </div>
+          </div>
+
+          {/* Probability distribution breakdown */}
+          <div className="mt-6 pt-5 border-t border-white/15">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/70 mb-3">
+              Class Probability Distribution
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Object.entries(analysis.ml_prediction.class_probabilities).map(([className, prob]) => {
+                const isSelected = className === analysis.ml_prediction?.predicted_class;
+                return (
+                  <div
+                    key={className}
+                    className={`rounded-xl p-3 border transition-all ${
+                      isSelected
+                        ? 'bg-white/20 border-[#98D65F] shadow-sm'
+                        : 'bg-white/5 border-white/10'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className={`font-semibold ${isSelected ? 'text-white' : 'text-white/70'}`}>
+                        {className}
+                      </span>
+                      <span className="font-mono font-bold text-[#98D65F]">
+                        {(prob * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/20 overflow-hidden">
+                      <div
+                        className="h-full bg-[#98D65F] rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(prob * 100, 2)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

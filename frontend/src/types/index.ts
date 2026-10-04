@@ -24,6 +24,16 @@ export type ClassificationStatus =
   | 'Above Safe Limit'
   | 'Data Unavailable';
 
+export type ModelType = 'rf' | 'xgb';
+
+export interface ModelInfo {
+  key: ModelType;
+  display_name: string;
+  cv_accuracy: string;
+  test_accuracy: string;
+  available: boolean;
+}
+
 export interface NutrientStandard {
   key: NutrientKey;
   displayName: string;
@@ -58,6 +68,16 @@ export interface AnalysisSummary {
   attention_required: number;
 }
 
+export interface MLPredictionResult {
+  predicted_class: string;
+  confidence_score: number;
+  class_probabilities: Record<string, number>;
+  model_key: ModelType;
+  model_name: string;
+  validation_accuracy: string;
+  test_accuracy: string;
+}
+
 export interface AnalysisResponse {
   sample_id: string | null;
   crop: string;
@@ -67,6 +87,7 @@ export interface AnalysisResponse {
   analyzed_at: string;
   results: NutrientResult[];
   summary: AnalysisSummary;
+  ml_prediction?: MLPredictionResult | null;
 }
 
 export interface SampleFormData {
@@ -74,5 +95,6 @@ export interface SampleFormData {
   crop: string;
   location: string;
   season: 'October' | 'April' | 'Other';
+  model_type: ModelType;
   nutrients: Record<string, string>; // raw string values for form inputs
 }
