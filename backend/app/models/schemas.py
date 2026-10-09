@@ -33,9 +33,11 @@ class SampleInput(BaseModel):
     crop: str = Field(default="Grape", max_length=100)
     location: Optional[str] = Field(None, max_length=200)
     season: Literal["October", "April", "Other"] = Field(default="October")
-    model_type: Literal["rf", "xgb"] = Field(
-        default="rf",
-        description="ML model to use: 'rf' = Random Forest, 'xgb' = XGBoost",
+    model_type: Literal[
+        "rf", "xgb", "catboost", "lightgbm", "gradient_boosting", "cb", "lgb", "gb"
+    ] = Field(
+        default="xgb",
+        description="ML model to use: 'rf', 'xgb', 'catboost', 'lightgbm', 'gradient_boosting'",
     )
     nutrients: NutrientValues
 

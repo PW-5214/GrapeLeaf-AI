@@ -8,7 +8,8 @@ GrapeLeaf AI is a full-stack, viticulture-focused decision support application b
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React icons, Responsive navigation, Accessible status badges (color + label + icon).
 - **Backend**: Python 3.11, FastAPI, Pydantic v2 schemas, ReportLab PDF generator, Pytest (41 tests).
-- **Dual ML Engine**: Supports both **Random Forest** (200 trees) and **XGBoost** (300 estimators) classification alongside rule-based reference limits.
+- **5-Model Ensemble ML Engine**: Supports **Random Forest** (200 trees), **XGBoost** (300 estimators), **CatBoost** (300 iterations), **LightGBM** (300 estimators), and **Gradient Boosting** (150 estimators) classification alongside rule-based reference limits.
+- **Reviewer Comparison Notebook**: Comprehensive Jupyter Notebook (`Petiole_Nutrient_Model_Comparison.ipynb` & `notebooks/`) with cross-validation comparisons, confusion matrices, class distribution plots, and feature importance rankings.
 - **Classification Engine**: Transparent reference classification:
   - Nutrients with min–max: **Low** (< min), **Optimum** (min ≤ val ≤ max, inclusive boundaries), **High** (> max).
   - Sodium (Na) & Chloride (Cl): **Safe** (< 0.5%), **Above Safe Limit** (≥ 0.5%).
@@ -49,7 +50,7 @@ Frontend application will be live at `http://127.0.0.1:5173`.
 cd backend
 python -m pytest tests/ -v
 ```
-All 41 tests cover boundary conditions, missing values, Na/Cl limits, recommendation logic, API routes, and dataset non-exposure.
+All 43 tests cover boundary conditions, missing values, Na/Cl limits, recommendation logic, API routes, all 5 ML models, and dataset non-exposure.
 
 ---
 

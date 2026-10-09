@@ -110,3 +110,41 @@ def test_dataset_non_exposure():
 
     resp3 = client.get("/Petiole_Leaf_Analysis_5000.csv")
     assert resp3.status_code == 404
+
+
+def test_models_list():
+    """Verify that GET /api/models returns all 5 trained models as available."""
+    response = client.get("/api/models")
+    assert response.status_code == 200
+    data = response.json()
+    assert "models" in data
+    assert len(data["models"]) == 5
+    keys = [m["key"] for m in data["models"]]
+    for expected in ["rf", "xgb", "catboost", "lightgbm", "gradient_boosting"]:
+        assert expected in keys
+    for m in data["models"]:
+        assert m["available"] is True
+
+
+def test_all_five_models_analyze():
+    """Verify that each of the 5 models can classify sample correctly."""
+    sample_nutrients = {
+        "N": 1.8, "NO3": 850, "NH4_N": 600, "P": 0.55, "K": 1.50,
+        "Ca": 0.90, "Mg": 0.65, "S": 0.20, "Fe": 60, "Mn": 70,
+        "Zn": 65, "Cu": 7.5, "Boron": 45, "Mo": 0.35, "Na": 0.25, "Cl": 0.30
+    }
+    for m_key in ["rf", "xgb", "catboost", "lightgbm", "gradient_boosting"]:
+        payload = {
+            "sample_id": f"TEST-{m_key.upper()}",
+            "crop": "Grape",
+            "model_type": m_key,
+            "nutrients": sample_nutrients,
+        }
+        response = client.post("/api/analyze", json=payload)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["ml_prediction"] is not None
+        assert res["ml_prediction"]["model_key"] == m_key
+        assert "predicted_class" in res["ml_prediction"]
+        assert res["ml_prediction"]["confidence_score"] > 0
+

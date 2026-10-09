@@ -15,6 +15,9 @@ import {
   Trees,
   CheckCircle2,
   Info,
+  Zap,
+  Flame,
+  Layers,
 } from 'lucide-react';
 
 interface AnalyzePageProps {
@@ -26,6 +29,7 @@ const MODEL_DETAILS: Record<
   {
     label: string;
     shortLabel: string;
+    tag: string;
     icon: React.ReactNode;
     color: string;
     bg: string;
@@ -35,27 +39,65 @@ const MODEL_DETAILS: Record<
     pros: string[];
   }
 > = {
+  xgb: {
+    label: 'XGBoost',
+    shortLabel: 'XGB',
+    tag: '300 Estimators',
+    icon: <Cpu size={20} />,
+    color: 'text-[#54245F]',
+    bg: 'bg-[#F6F1F8]',
+    ring: 'ring-[#54245F]',
+    badge: 'bg-[#54245F] text-white',
+    description: 'Gradient-boosted decision trees optimized for tabular petiole data.',
+    pros: ['Regularized gradient boosting', 'Captures complex nutrient interactions', 'Fine-grained non-linear splits'],
+  },
+  catboost: {
+    label: 'CatBoost',
+    shortLabel: 'CB',
+    tag: '300 Iterations',
+    icon: <Flame size={20} />,
+    color: 'text-[#C2410C]',
+    bg: 'bg-[#FFF7ED]',
+    ring: 'ring-[#C2410C]',
+    badge: 'bg-[#C2410C] text-white',
+    description: 'Categorical boosting with symmetric decision trees, resilient to overfitting.',
+    pros: ['Oblivious tree architecture', 'Resistant to data variance', 'Superior numeric split stability'],
+  },
+  lightgbm: {
+    label: 'LightGBM',
+    shortLabel: 'LGBM',
+    tag: '300 Estimators',
+    icon: <Zap size={20} />,
+    color: 'text-[#0284C7]',
+    bg: 'bg-[#F0F9FF]',
+    ring: 'ring-[#0284C7]',
+    badge: 'bg-[#0284C7] text-white',
+    description: 'Leaf-wise gradient boosting engine designed for ultra-high speed and precision.',
+    pros: ['Leaf-wise histogram tree growth', 'Optimal split finding', 'Highest cross-validation accuracy'],
+  },
   rf: {
     label: 'Random Forest',
     shortLabel: 'RF',
+    tag: '200 Trees',
     icon: <Trees size={20} />,
     color: 'text-[#4F772D]',
     bg: 'bg-[#EAF3E2]',
     ring: 'ring-[#4F772D]',
     badge: 'bg-[#4F772D] text-white',
     description: 'Ensemble of 200 decision trees. Robust, interpretable, and industry-trusted.',
-    pros: ['High interpretability', 'Handles missing values gracefully', 'Robust ensemble decision trees'],
+    pros: ['High interpretability', 'Handles missing values gracefully', 'Robust bagging decision trees'],
   },
-  xgb: {
-    label: 'XGBoost',
-    shortLabel: 'XGB',
-    icon: <Cpu size={20} />,
-    color: 'text-[#54245F]',
-    bg: 'bg-[#F6F1F8]',
-    ring: 'ring-[#54245F]',
-    badge: 'bg-[#54245F] text-white',
-    description: 'Gradient-boosted decision trees (300 estimators) for tabular petiole data.',
-    pros: ['Gradient boosting architecture', 'Captures complex nutrient interactions', 'Fine-grained non-linear splits'],
+  gradient_boosting: {
+    label: 'Gradient Boosting',
+    shortLabel: 'GB',
+    tag: '150 Estimators',
+    icon: <Layers size={20} />,
+    color: 'text-[#0D9488]',
+    bg: 'bg-[#F0FDFA]',
+    ring: 'ring-[#0D9488]',
+    badge: 'bg-[#0D9488] text-white',
+    description: 'Classical sequential stage-wise gradient boosting with deviance loss.',
+    pros: ['Stage-wise residual optimization', 'Smooth decision margins', 'Classical benchmark standard'],
   },
 };
 
@@ -275,17 +317,17 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                 2. Choose ML Classification Engine
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                Both models are trained on 5,000 petiole records using verified reference standards.
+                All 5 ML engines are trained on 5,000 petiole records using verified reference standards.
               </p>
             </div>
             <span className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-[#4F772D] bg-[#EAF3E2] px-3 py-1.5 rounded-full whitespace-nowrap">
               <CheckCircle2 size={12} />
-              {availableModels.length > 0 ? `${availableModels.length} Models Ready` : 'Models Ready'}
+              {availableModels.length > 0 ? `${availableModels.length} Models Ready` : '5 Models Ready'}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(['rf', 'xgb'] as ModelType[]).map((key) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(['xgb', 'catboost', 'lightgbm', 'rf', 'gradient_boosting'] as ModelType[]).map((key) => {
               const m = MODEL_DETAILS[key];
               const isSelected = modelType === key;
               return (
@@ -315,7 +357,7 @@ export const AnalyzePage: React.FC<AnalyzePageProps> = ({ onAnalysisComplete }) 
                     <div>
                       <p className={`text-sm font-extrabold ${isSelected ? m.color : 'text-gray-800'}`}>{m.label}</p>
                       <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isSelected ? m.badge : 'bg-gray-200 text-gray-600'}`}>
-                        {key === 'rf' ? '200 Trees' : '300 Estimators'}
+                        {m.tag}
                       </span>
                     </div>
                   </div>

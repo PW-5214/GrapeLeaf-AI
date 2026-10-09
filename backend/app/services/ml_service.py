@@ -14,13 +14,25 @@ _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(_BASE, "models")
 
 MODEL_PATHS: Dict[str, str] = {
-    "rf":  os.path.join(MODEL_DIR, "vine_classifier_rf.joblib"),
-    "xgb": os.path.join(MODEL_DIR, "vine_classifier_xgb.joblib"),
+    "rf":                os.path.join(MODEL_DIR, "vine_classifier_rf.joblib"),
+    "xgb":               os.path.join(MODEL_DIR, "vine_classifier_xgb.joblib"),
+    "catboost":          os.path.join(MODEL_DIR, "vine_classifier_catboost.joblib"),
+    "lightgbm":          os.path.join(MODEL_DIR, "vine_classifier_lightgbm.joblib"),
+    "gradient_boosting": os.path.join(MODEL_DIR, "vine_classifier_gradient_boosting.joblib"),
 }
 
 MODEL_DISPLAY_NAMES: Dict[str, str] = {
-    "rf":  "Random Forest (200 trees)",
-    "xgb": "XGBoost (300 estimators)",
+    "rf":                "Random Forest (200 trees)",
+    "xgb":               "XGBoost (300 estimators)",
+    "catboost":          "CatBoost (300 iterations)",
+    "lightgbm":          "LightGBM (300 estimators)",
+    "gradient_boosting": "Gradient Boosting (150 estimators)",
+}
+
+ALIAS_MAP: Dict[str, str] = {
+    "cb":  "catboost",
+    "lgb": "lightgbm",
+    "gb":  "gradient_boosting",
 }
 
 FEATURE_NAMES = [
@@ -33,13 +45,14 @@ _cache: Dict[str, Any] = {}
 
 
 def _load_bundle(model_key: str) -> Optional[dict]:
-    """Load and cache a model bundle by key ('rf' or 'xgb')."""
-    if model_key in _cache:
-        return _cache[model_key]
-    path = MODEL_PATHS.get(model_key)
+    """Load and cache a model bundle by canonical key."""
+    canonical_key = ALIAS_MAP.get(model_key, model_key)
+    if canonical_key in _cache:
+        return _cache[canonical_key]
+    path = MODEL_PATHS.get(canonical_key)
     if path and os.path.exists(path):
-        _cache[model_key] = joblib.load(path)
-        return _cache[model_key]
+        _cache[canonical_key] = joblib.load(path)
+        return _cache[canonical_key]
     return None
 
 
@@ -82,7 +95,8 @@ def predict_vine_status(
         dict with predicted_class, confidence_score, class_probabilities, etc.
         or None if the model is not available.
     """
-    bundle = _load_bundle(model_key)
+    canonical_key = ALIAS_MAP.get(model_key, model_key)
+    bundle = _load_bundle(canonical_key)
     if bundle is None:
         return None
 
@@ -92,8 +106,8 @@ def predict_vine_status(
 
     pipeline        = bundle["pipeline"]
     feature_names   = bundle.get("feature_names", FEATURE_NAMES)
-    le              = bundle.get("label_encoder")   # only XGBoost has this
-    classes_list    = bundle["classes"]             # always string class names
+    le              = bundle.get("label_encoder")
+    classes_list    = bundle["classes"]
 
     # Build single-row DataFrame
     row_data = {feat: [nutrients.get(feat)] for feat in feature_names}
@@ -101,21 +115,19 @@ def predict_vine_status(
 
     try:
         if le is not None:
-            # XGBoost: predict integer encoded class → decode back to string
             pred_enc  = pipeline.predict(df_row)[0]
             proba     = pipeline.predict_proba(df_row)[0]
-            pred_class = le.inverse_transform([int(pred_enc)])[0]
-            # Map probabilities back to string class names
+            scalar_enc = int(np.asarray(pred_enc).ravel()[0])
+            pred_class = str(le.inverse_transform([scalar_enc])[0])
             class_probs = {
-                cls_name: round(float(p), 4)
+                str(cls_name): round(float(p), 4)
                 for cls_name, p in zip(le.classes_, proba)
             }
         else:
-            # Random Forest: predicts string labels directly
-            pred_class  = pipeline.predict(df_row)[0]
+            pred_class  = str(pipeline.predict(df_row)[0])
             proba       = pipeline.predict_proba(df_row)[0]
             class_probs = {
-                cls_name: round(float(p), 4)
+                str(cls_name): round(float(p), 4)
                 for cls_name, p in zip(pipeline.classes_, proba)
             }
 
@@ -125,8 +137,8 @@ def predict_vine_status(
             "predicted_class":   pred_class,
             "confidence_score":  round(confidence, 4),
             "class_probabilities": class_probs,
-            "model_key":         model_key,
-            "model_name":        MODEL_DISPLAY_NAMES.get(model_key, model_key),
+            "model_key":         canonical_key,
+            "model_name":        MODEL_DISPLAY_NAMES.get(canonical_key, canonical_key),
             "validation_accuracy": f"{bundle.get('cv_mean', 0) * 100:.1f}%",
             "test_accuracy":       f"{bundle.get('accuracy', 0) * 100:.1f}%",
         }

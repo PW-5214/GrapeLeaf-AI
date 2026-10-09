@@ -38,7 +38,7 @@ async def download_pdf(body: SampleInput) -> Response:
     }
 
     results = classify_sample(nutrient_dict)
-    ml_result = predict_vine_status(nutrient_dict)
+    ml_result = predict_vine_status(nutrient_dict, model_key=body.model_type)
 
     low = sum(1 for r in results if r.status == "Low")
     optimum = sum(1 for r in results if r.status == "Optimum")

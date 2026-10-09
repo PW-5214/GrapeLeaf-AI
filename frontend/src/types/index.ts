@@ -24,7 +24,7 @@ export type ClassificationStatus =
   | 'Above Safe Limit'
   | 'Data Unavailable';
 
-export type ModelType = 'rf' | 'xgb';
+export type ModelType = 'rf' | 'xgb' | 'catboost' | 'lightgbm' | 'gradient_boosting';
 
 export interface ModelInfo {
   key: ModelType;
